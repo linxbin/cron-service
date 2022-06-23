@@ -35,20 +35,23 @@ func (d *Dao) CreateTask(form TaskForm) error {
 	return task.Create(d.engine)
 }
 
-// func (d *Dao) UpdateTag(id uint32, name string, state uint8, modifiedBy string) error {
-// 	tag := model.Task{
-// 		Model: &model.Model{ID: id},
-// 	}
-// 	values := map[string]interface{}{
-// 		"state":       state,
-// 		"modified_by": modifiedBy,
-// 	}
-// 	if name != "" {
-// 		values["name"] = name
-// 	}
+func (d *Dao) UpdateTag(id uint32, form TaskForm) error {
+	task := model.Task{
+		Model: &model.Model{ID: id},
+	}
+	values := model.CommonMap{
+		"name":           form.Name,
+		"spec":           form.Spec,
+		"command":        form.Command,
+		"timeout":        form.Timeout,
+		"retry_times":    form.RetryTimes,
+		"retry_interval": form.RetryInterval,
+		"remark":         form.Remark,
+		"status":         form.Status,
+	}
 
-// 	return tag.Update(d.engine, values)
-// }
+	return task.Update(d.engine, values)
+}
 
 // func (d *Dao) DeleteTag(id uint32) error {
 // 	tag := model.Tag{Model: &model.Model{ID: id}}

@@ -23,7 +23,7 @@ func (t Task) Create(db *gorm.DB) error {
 }
 
 func (t Task) Update(db *gorm.DB, values interface{}) error {
-	if err := db.Model(t).Where("id = ? AND is_del = ?", t.ID, 0).Updates(values).Error; err != nil {
+	if err := db.Model(t).Where("id = ?", t.ID).Updates(values).Error; err != nil {
 		return err
 	}
 	return nil

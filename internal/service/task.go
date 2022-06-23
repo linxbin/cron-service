@@ -5,6 +5,15 @@ import (
 )
 
 type CreateTaskRequest struct {
+	TaskRequest
+}
+
+type UpDateTaskReuqest struct {
+	ID uint32 `form:"id" binding:"required"`
+	TaskRequest
+}
+
+type TaskRequest struct {
 	Name          string `form:"name" binding:"required,min=0,max=32"`
 	Spec          string `form:"spec" binding:"required,min=0,max=64"`
 	Command       string `form:"command" binding:"required,min=0,max=255"`
@@ -28,4 +37,19 @@ func (svc *Service) CreateTask(request *CreateTaskRequest) error {
 	}
 
 	return svc.dao.CreateTask(form)
+}
+
+func (svc *Service) UpdateTag(request *UpDateTaskReuqest) error {
+	form := dao.TaskForm{
+		Name:          request.Name,
+		Spec:          request.Spec,
+		Command:       request.Command,
+		Timeout:       request.Timeout,
+		RetryTimes:    request.RetryTimes,
+		RetryInterval: request.RetryInterval,
+		Remark:        request.Remark,
+		Status:        request.Status,
+	}
+
+	return svc.dao.UpdateTag(request.ID, form)
 }

@@ -11,6 +11,8 @@ import (
 	"github.com/linxbin/corn-service/pkg/setting"
 )
 
+type CommonMap map[string]interface{}
+
 type Model struct {
 	ID      uint32       `gorm:"primary_key" json:"id"`
 	Created time.Time    `json:"created"`
