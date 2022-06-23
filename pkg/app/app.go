@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/linxbin/corn-service/pkg/errocde"
+	"github.com/linxbin/corn-service/pkg/errcode"
 )
 
 type Response struct {
@@ -39,7 +39,7 @@ func (r *Response) ToResponseList(list interface{}, totalRows int) {
 	})
 }
 
-func (r *Response) ToErrorResponse(err *errocde.Error) {
+func (r *Response) ToErrorResponse(err *errcode.Error) {
 	response := gin.H{"code": err.Code, "msg": err.Msg}
 	details := err.Details
 	if len(details) > 0 {

@@ -1,0 +1,16 @@
+package routers
+
+import (
+	"github.com/gin-gonic/gin"
+	v1 "github.com/linxbin/corn-service/internal/routers/api/v1"
+)
+
+// InitTaskRouter 索引路由
+func InitTaskRouter(Router *gin.RouterGroup) {
+
+	task := v1.NewTask()
+	router := Router.Group("tasks")
+	{
+		router.POST("", task.Create) // 创建新任务
+	}
+}
