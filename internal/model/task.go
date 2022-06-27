@@ -8,8 +8,8 @@ type Task struct {
 	Spec          string `json:"spec"`
 	Command       string `json:"command"`
 	Timeout       uint16 `json:"timeout"`
-	RetryTimes    uint8  `json:"retryTimes"`
-	RetryInterval uint16 `json:"retryInterval"`
+	RetryTimes    uint8  `json:"retry_times"`
+	RetryInterval uint16 `json:"retry_interval"`
 	Remark        string `json:"remark"`
 	Status        uint8  `json:"status"`
 }
