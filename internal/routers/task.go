@@ -11,7 +11,8 @@ func InitTaskRouter(Router *gin.RouterGroup) {
 	task := v1.NewTask()
 	router := Router.Group("tasks")
 	{
-		router.POST("", task.Create) // 创建新任务
+		router.POST("", task.Create)    // 创建新任务
 		router.PUT("/:id", task.Update) // 创建新任务
+		router.GET("", task.List)       // 任务列表
 	}
 }

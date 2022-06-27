@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/linxbin/corn-service/internal/model"
+	"github.com/linxbin/corn-service/pkg/app"
 )
 
 type TaskForm struct {
@@ -35,7 +36,7 @@ func (d *Dao) CreateTask(form TaskForm) error {
 	return task.Create(d.engine)
 }
 
-func (d *Dao) UpdateTag(id uint32, form TaskForm) error {
+func (d *Dao) UpdateTask(id uint32, form TaskForm) error {
 	task := model.Task{
 		Model: &model.Model{ID: id},
 	}
@@ -51,6 +52,20 @@ func (d *Dao) UpdateTag(id uint32, form TaskForm) error {
 	}
 
 	return task.Update(d.engine, values)
+}
+
+func (d *Dao) CountTask(name string, status uint8) (int, error) {
+	task := model.Task{
+		Name:   name,
+		Status: status,
+	}
+	return task.Count(d.engine)
+}
+
+func (d *Dao) GetTaskList(name string, status uint8, page, pageSize int) ([]*model.Task, error) {
+	task := model.Task{Name: name, Status: status}
+	pageOffset := app.GetPageOffset(page, pageSize)
+	return task.List(d.engine, pageOffset, pageSize)
 }
 
 // func (d *Dao) DeleteTag(id uint32) error {

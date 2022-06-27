@@ -23,7 +23,7 @@ func (t Task) Create(db *gorm.DB) error {
 }
 
 func (t Task) Update(db *gorm.DB, values interface{}) error {
-	if err := db.Model(t).Where("id = ?", t.ID).Updates(values).Error; err != nil {
+	if err := db.Model(t).Where("id = ? AND is_del = ?", t.ID, 0).Updates(values).Error; err != nil {
 		return err
 	}
 	return nil
@@ -31,4 +31,35 @@ func (t Task) Update(db *gorm.DB, values interface{}) error {
 
 func (t Task) Delete(db *gorm.DB) error {
 	return db.Where("id = ? AND is_del = ?", t.Model.ID, 0).Delete(&t).Error
+}
+
+func (t Task) Count(db *gorm.DB) (int, error) {
+	var count int
+	if t.Name != "" {
+		db = db.Where("name = ?", t.Name)
+	}
+	db = db.Where("status = ?", t.Status)
+	if err := db.Model(&t).Where("is_del = ?", 0).Count(&count).Error; err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (t Task) List(db *gorm.DB, pageOffset, pageSize int) ([]*Task, error) {
+	var tasks []*Task
+	var err error
+	if pageOffset >= 0 && pageSize > 0 {
+		db = db.Offset(pageOffset).Limit(pageSize)
+	}
+	if t.Name != "" {
+		db = db.Where("name = ?", t.Name)
+	}
+	db = db.Where("status = ?", t.Status)
+
+	if err = db.Where("is_del = ?", 0).Find(&tasks).Error; err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
 }

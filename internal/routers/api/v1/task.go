@@ -47,7 +47,7 @@ func (t Task) Update(c *gin.Context) {
 	}
 
 	svc := service.New(c.Request.Context())
-	err := svc.UpdateTag(&params)
+	err := svc.UpdateTask(&params)
 	if err != nil {
 		global.Logger.Errorf("svc.UpdateTask err: %v", err)
 		response.ToErrorResponse(errcode.ErrorUpdateTaskFail)
@@ -55,5 +55,33 @@ func (t Task) Update(c *gin.Context) {
 	}
 
 	response.ToResponse(gin.H{})
+}
 
+func (t Task) List(c *gin.Context) {
+	params := service.TaskListRequest{Name: convert.StrTo(c.Param("name")).String(), Status: uint8(convert.StrTo(c.Param("status")).MustInt())}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &params)
+	if !valid {
+		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+
+	svc := service.New(c.Request.Context())
+	pager := app.Pager{Page: app.GetPage(c), PageSize: app.GetPageSize(c)}
+	totalRows, err := svc.CountTask(&service.CountTaskRequest{Name: params.Name, Status: params.Status})
+	if err != nil {
+		global.Logger.Errorf("svc.CountTag err: %v", err)
+		response.ToErrorResponse(errcode.ErrorCountTaskFail)
+		return
+	}
+
+	tags, err := svc.GetTaskList(&params, &pager)
+	if err != nil {
+		global.Logger.Errorf("svc.GetTagList err: %v", err)
+		response.ToErrorResponse(errcode.ErrorGetTaskListFail)
+		return
+	}
+
+	response.ToResponseList(tags, totalRows)
 }

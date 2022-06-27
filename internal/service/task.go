@@ -2,6 +2,8 @@ package service
 
 import (
 	"github.com/linxbin/corn-service/internal/dao"
+	"github.com/linxbin/corn-service/internal/model"
+	"github.com/linxbin/corn-service/pkg/app"
 )
 
 type CreateTaskRequest struct {
@@ -24,6 +26,16 @@ type TaskRequest struct {
 	Status        uint8  `form:"status" binding:"oneof=0 1"`
 }
 
+type TaskListRequest struct {
+	Name   string `form:"name" binding:"max=100"`
+	Status uint8  `form:"status,default=1" binding:"oneof=0 1"`
+}
+
+type CountTaskRequest struct {
+	Name   string `form:"name" binding:"max=100"`
+	Status uint8  `form:"status,default=1" binding:"oneof=0 1"`
+}
+
 func (svc *Service) CreateTask(request *CreateTaskRequest) error {
 	form := dao.TaskForm{
 		Name:          request.Name,
@@ -39,7 +51,7 @@ func (svc *Service) CreateTask(request *CreateTaskRequest) error {
 	return svc.dao.CreateTask(form)
 }
 
-func (svc *Service) UpdateTag(request *UpDateTaskReuqest) error {
+func (svc *Service) UpdateTask(request *UpDateTaskReuqest) error {
 	form := dao.TaskForm{
 		Name:          request.Name,
 		Spec:          request.Spec,
@@ -51,5 +63,13 @@ func (svc *Service) UpdateTag(request *UpDateTaskReuqest) error {
 		Status:        request.Status,
 	}
 
-	return svc.dao.UpdateTag(request.ID, form)
+	return svc.dao.UpdateTask(request.ID, form)
+}
+
+func (svc *Service) CountTask(request *CountTaskRequest) (int, error) {
+	return svc.dao.CountTask(request.Name, request.Status)
+}
+
+func (svc *Service) GetTaskList(request *TaskListRequest, pager *app.Pager) ([]*model.Task, error) {
+	return svc.dao.GetTaskList(request.Name, request.Status, pager.Page, pager.PageSize)
 }
