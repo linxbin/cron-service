@@ -68,7 +68,12 @@ func (d *Dao) GetTaskList(name string, status uint8, page, pageSize int) ([]*mod
 	return task.List(d.engine, pageOffset, pageSize)
 }
 
-// func (d *Dao) DeleteTag(id uint32) error {
-// 	tag := model.Tag{Model: &model.Model{ID: id}}
-// 	return tag.Delete(d.engine)
-// }
+func (d *Dao) DeleteTask(id uint32) error {
+	task := model.Task{Model: &model.Model{ID: id}}
+	return task.Delete(d.engine)
+}
+
+func (d *Dao) TaskDetail(id uint32) (model.Task, error) {
+	var task model.Task
+	return task.Detail(d.engine, id)
+}

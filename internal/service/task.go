@@ -1,19 +1,13 @@
 package service
 
 import (
+	"errors"
+
+	"github.com/linxbin/corn-service/global"
 	"github.com/linxbin/corn-service/internal/dao"
 	"github.com/linxbin/corn-service/internal/model"
 	"github.com/linxbin/corn-service/pkg/app"
 )
-
-type CreateTaskRequest struct {
-	TaskRequest
-}
-
-type UpDateTaskReuqest struct {
-	ID uint32 `form:"id" binding:"required"`
-	TaskRequest
-}
 
 type TaskRequest struct {
 	Name          string `form:"name" binding:"required,min=0,max=32"`
@@ -24,6 +18,19 @@ type TaskRequest struct {
 	RetryInterval uint16 `form:"retryInterval" binding:"required,gte=1"`
 	Remark        string `form:"remark" binding:"min=0,max=255"`
 	Status        uint8  `form:"status" binding:"oneof=0 1"`
+}
+
+type CreateTaskRequest struct {
+	TaskRequest
+}
+
+type UpDateTaskReuqest struct {
+	ID uint32 `form:"id" binding:"required"`
+	TaskRequest
+}
+
+type DeleteTaskRequest struct {
+	ID uint32 `form:"id" binding:"required,gte=1"`
 }
 
 type TaskListRequest struct {
@@ -51,7 +58,14 @@ func (svc *Service) CreateTask(request *CreateTaskRequest) error {
 	return svc.dao.CreateTask(form)
 }
 
+var ErrorTaskNotFound = errors.New("任务不存在")
+
 func (svc *Service) UpdateTask(request *UpDateTaskReuqest) error {
+	task, err := svc.TaskDetail(request.ID)
+	if err != nil || task.ID == 0 {
+		global.Logger.Errorf("svc.UpdateTask err: %v", err)
+		return ErrorTaskNotFound
+	}
 	form := dao.TaskForm{
 		Name:          request.Name,
 		Spec:          request.Spec,
@@ -72,4 +86,12 @@ func (svc *Service) CountTask(request *CountTaskRequest) (int, error) {
 
 func (svc *Service) GetTaskList(request *TaskListRequest, pager *app.Pager) ([]*model.Task, error) {
 	return svc.dao.GetTaskList(request.Name, request.Status, pager.Page, pager.PageSize)
+}
+
+func (svc *Service) DeleteTask(param *DeleteTaskRequest) error {
+	return svc.dao.DeleteTask(param.ID)
+}
+
+func (svc *Service) TaskDetail(id uint32) (model.Task, error) {
+	return svc.dao.TaskDetail(id)
 }

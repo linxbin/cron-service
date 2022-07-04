@@ -1,6 +1,8 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+)
 
 type Task struct {
 	*Model
@@ -62,4 +64,14 @@ func (t Task) List(db *gorm.DB, pageOffset, pageSize int) ([]*Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func (t Task) Detail(db *gorm.DB, ID uint32) (Task, error) {
+	task := Task{}
+	var err error
+
+	if err = db.First(&task, "id = ? and is_del = ?", ID, 0).Error; err != nil {
+		return task, err
+	}
+	return task, nil
 }

@@ -37,8 +37,8 @@ func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 		db.LogMode(true)
 	}
 	db.SingularTable(true)
-	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
-	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
+	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeForCreateCallback)
+	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeForUpdateCallback)
 	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 	db.DB().SetMaxIdleConns(databaseSetting.MaxIdleConns)
 	db.DB().SetMaxOpenConns(databaseSetting.MaxOpenConns)
@@ -46,9 +46,9 @@ func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 	return db, nil
 }
 
-func updateTimeStampForCreateCallback(scope *gorm.Scope) {
+func updateTimeForCreateCallback(scope *gorm.Scope) {
 	if !scope.HasError() {
-		nowTime := time.Now().Unix()
+		nowTime := time.Now()
 		if createTimeField, ok := scope.FieldByName("Created"); ok {
 			if createTimeField.IsBlank {
 				_ = createTimeField.Set(nowTime)
@@ -63,9 +63,9 @@ func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 	}
 }
 
-func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
+func updateTimeForUpdateCallback(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok {
-		_ = scope.SetColumn("Updated", time.Now().Unix())
+		_ = scope.SetColumn("Updated", time.Now())
 	}
 }
 

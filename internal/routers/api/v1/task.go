@@ -85,3 +85,24 @@ func (t Task) List(c *gin.Context) {
 
 	response.ToResponseList(tags, totalRows)
 }
+
+func (t Task) Delete(c *gin.Context) {
+	params := service.DeleteTaskRequest{ID: convert.StrTo(c.Param("id")).MustUInt32()}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &params)
+	if !valid {
+		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+	svc := service.New(c.Request.Context())
+	err := svc.DeleteTask(&params)
+	if err != nil {
+		global.Logger.Errorf("svc.UpdateTask err: %v", err)
+		response.ToErrorResponse(errcode.ErrorDeleteTaskFail)
+		return
+	}
+
+	response.ToResponse(gin.H{})
+
+}
