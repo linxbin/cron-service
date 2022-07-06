@@ -6,4 +6,5 @@ var (
 	ErrorUpdateTaskFail  = NewError(20010003, "更新任务失败")
 	ErrorDeleteTaskFail  = NewError(20010004, "删除任务失败")
 	ErrorCountTaskFail   = NewError(20010005, "统计任务失败")
+	ErrorTaskNotFound    = NewError(20010006, "任务不存在")
 )

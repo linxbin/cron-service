@@ -26,8 +26,7 @@ func (t Task) Create(c *gin.Context) {
 	}
 
 	svc := service.New(c.Request.Context())
-	err := svc.CreateTask(&param)
-	if err != nil {
+	if err := svc.CreateTask(&param); err != nil {
 		global.Logger.Errorf("svc.CreateTask err: %v", err)
 		response.ToErrorResponse(errcode.ErrorCreateTaskFail)
 		return
@@ -47,8 +46,7 @@ func (t Task) Update(c *gin.Context) {
 	}
 
 	svc := service.New(c.Request.Context())
-	err := svc.UpdateTask(&params)
-	if err != nil {
+	if err := svc.UpdateTask(&params); err != nil {
 		global.Logger.Errorf("svc.UpdateTask err: %v", err)
 		response.ToErrorResponse(errcode.ErrorUpdateTaskFail)
 		return
@@ -96,8 +94,7 @@ func (t Task) Delete(c *gin.Context) {
 		return
 	}
 	svc := service.New(c.Request.Context())
-	err := svc.DeleteTask(&params)
-	if err != nil {
+	if err := svc.DeleteTask(&params); err != nil {
 		global.Logger.Errorf("svc.UpdateTask err: %v", err)
 		response.ToErrorResponse(errcode.ErrorDeleteTaskFail)
 		return
@@ -105,4 +102,22 @@ func (t Task) Delete(c *gin.Context) {
 
 	response.ToResponse(gin.H{})
 
+}
+
+func (t Task) Detail(c *gin.Context) {
+	params := service.TaskDetailRequest{ID: convert.StrTo(c.Param("id")).MustUInt32()}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &params)
+	if !valid {
+		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+	svc := service.New(c.Request.Context())
+	if task, err := svc.TaskDetail(params.ID); err != nil {
+		global.Logger.Errorf("svc.TaskDetail err: %v", err)
+		response.ToErrorResponse(errcode.ErrorTaskNotFound)
+	} else {
+		response.ToResponse(gin.H{"data": task})
+	}
 }

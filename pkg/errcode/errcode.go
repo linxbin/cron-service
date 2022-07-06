@@ -32,10 +32,7 @@ func (e *Error) Msgf(args []interface{}) string {
 func (e *Error) WithDetails(details ...string) *Error {
 	newError := *e
 	newError.Details = []string{}
-	for _, d := range details {
-		newError.Details = append(newError.Details, d)
-	}
-
+	newError.Details = append(newError.Details, details...)
 	return &newError
 }
 

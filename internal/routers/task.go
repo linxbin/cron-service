@@ -11,9 +11,10 @@ func InitTaskRouter(Router *gin.RouterGroup) {
 	task := v1.NewTask()
 	router := Router.Group("tasks")
 	{
-		router.POST("", task.Create)       // 创建新任务
-		router.PUT("/:id", task.Update)    // 创建新任务
-		router.DELETE("/:id", task.Delete) //删除任务
+		router.POST("", task.Create)       // 创建任务
+		router.PUT("/:id", task.Update)    // 更新任务
+		router.DELETE("/:id", task.Delete) // 删除任务
 		router.GET("", task.List)          // 任务列表
+		router.GET("/:id", task.Detail)    // 任务详情
 	}
 }

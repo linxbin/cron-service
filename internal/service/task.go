@@ -1,8 +1,6 @@
 package service
 
 import (
-	"errors"
-
 	"github.com/linxbin/corn-service/global"
 	"github.com/linxbin/corn-service/internal/dao"
 	"github.com/linxbin/corn-service/internal/model"
@@ -33,6 +31,10 @@ type DeleteTaskRequest struct {
 	ID uint32 `form:"id" binding:"required,gte=1"`
 }
 
+type TaskDetailRequest struct {
+	ID uint32 `form:"id" binding:"required,gte=1"`
+}
+
 type TaskListRequest struct {
 	Name   string `form:"name" binding:"max=100"`
 	Status uint8  `form:"status,default=1" binding:"oneof=0 1"`
@@ -58,13 +60,11 @@ func (svc *Service) CreateTask(request *CreateTaskRequest) error {
 	return svc.dao.CreateTask(form)
 }
 
-var ErrorTaskNotFound = errors.New("任务不存在")
-
 func (svc *Service) UpdateTask(request *UpDateTaskReuqest) error {
 	task, err := svc.TaskDetail(request.ID)
 	if err != nil || task.ID == 0 {
 		global.Logger.Errorf("svc.UpdateTask err: %v", err)
-		return ErrorTaskNotFound
+		return err
 	}
 	form := dao.TaskForm{
 		Name:          request.Name,
@@ -92,6 +92,6 @@ func (svc *Service) DeleteTask(param *DeleteTaskRequest) error {
 	return svc.dao.DeleteTask(param.ID)
 }
 
-func (svc *Service) TaskDetail(id uint32) (model.Task, error) {
+func (svc *Service) TaskDetail(id uint32) (task model.Task, err error) {
 	return svc.dao.TaskDetail(id)
 }
