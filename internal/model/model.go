@@ -12,6 +12,8 @@ import (
 
 type CommonMap map[string]interface{}
 
+const NoDelete = 0
+
 type Model struct {
 	ID      uint32    `gorm:"primary_key" json:"id"`
 	Created time.Time `json:"created"`

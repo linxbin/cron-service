@@ -36,7 +36,7 @@ func (t Task) Create(c *gin.Context) {
 }
 
 func (t Task) Update(c *gin.Context) {
-	params := service.UpDateTaskReuqest{ID: convert.StrTo(c.Param("id")).MustUInt32()}
+	params := service.UpDateTaskRequest{ID: convert.StrTo(c.Param("id")).MustUInt32()}
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &params)
 	if !valid {
@@ -74,7 +74,7 @@ func (t Task) List(c *gin.Context) {
 		return
 	}
 
-	tags, err := svc.GetTaskList(&params, &pager)
+	tags, err := svc.TaskList(&params, &pager)
 	if err != nil {
 		global.Logger.Errorf("svc.GetTagList err: %v", err)
 		response.ToErrorResponse(errcode.ErrorGetTaskListFail)

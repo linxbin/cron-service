@@ -62,10 +62,16 @@ func (d *Dao) CountTask(name string, status uint8) (int, error) {
 	return task.Count(d.engine)
 }
 
-func (d *Dao) GetTaskList(name string, status uint8, page, pageSize int) ([]*model.Task, error) {
+func (d *Dao) TaskList(name string, status uint8, page, pageSize int) ([]*model.Task, error) {
 	task := model.Task{Name: name, Status: status}
 	pageOffset := app.GetPageOffset(page, pageSize)
 	return task.List(d.engine, pageOffset, pageSize)
+}
+
+func (d *Dao) TaskActiveList(page, pageSize int) ([]*model.Task, error) {
+	task := model.Task{}
+	pageOffset := app.GetPageOffset(page, pageSize)
+	return task.ActiveList(d.engine, pageOffset, pageSize)
 }
 
 func (d *Dao) DeleteTask(id uint32) error {
