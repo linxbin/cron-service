@@ -36,7 +36,7 @@ func (t Task) Create(c *gin.Context) {
 }
 
 func (t Task) Update(c *gin.Context) {
-	params := service.UpDateTaskReuqest{ID: convert.StrTo(c.Param("id")).MustUInt32()}
+	params := service.UpDateTaskRequest{ID: convert.StrTo(c.Param("id")).MustUInt32()}
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &params)
 	if !valid {

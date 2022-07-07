@@ -22,7 +22,7 @@ type CreateTaskRequest struct {
 	TaskRequest
 }
 
-type UpDateTaskReuqest struct {
+type UpDateTaskRequest struct {
 	ID uint32 `form:"id" binding:"required"`
 	TaskRequest
 }
@@ -60,7 +60,7 @@ func (svc *Service) CreateTask(request *CreateTaskRequest) error {
 	return svc.dao.CreateTask(form)
 }
 
-func (svc *Service) UpdateTask(request *UpDateTaskReuqest) error {
+func (svc *Service) UpdateTask(request *UpDateTaskRequest) error {
 	task, err := svc.TaskDetail(request.ID)
 	if err != nil || task.ID == 0 {
 		global.Logger.Errorf("svc.UpdateTask err: %v", err)
