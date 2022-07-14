@@ -2,6 +2,7 @@ package dao
 
 import (
 	"github.com/linxbin/corn-service/internal/model"
+	"github.com/linxbin/corn-service/pkg/app"
 	"strings"
 	"time"
 )
@@ -22,6 +23,7 @@ type TaskLogForm struct {
 
 func (d *Dao) CreateTaskLog(form TaskLogForm) (uint32, error) {
 	taskLog := model.TaskLog{
+		TaskId:     form.TaskId,
 		Name:       form.Name,
 		Spec:       form.Spec,
 		Command:    strings.TrimSpace(form.Command),
@@ -48,4 +50,17 @@ func (d *Dao) UpdateTaskLog(id uint32, commonMap model.CommonMap) error {
 	}
 
 	return taskLog.Update(d.engine, commonMap)
+}
+
+func (d *Dao) CountTaskLog(taskId uint32) (int, error) {
+	taskLog := model.TaskLog{
+		TaskId: taskId,
+	}
+	return taskLog.Count(d.engine, taskId)
+}
+
+func (d *Dao) TaskLogList(taskId uint32, page, pageSize int) ([]*model.TaskLog, error) {
+	taskLog := model.TaskLog{TaskId: taskId}
+	pageOffset := app.GetPageOffset(page, pageSize)
+	return taskLog.List(d.engine, taskId, pageOffset, pageSize)
 }

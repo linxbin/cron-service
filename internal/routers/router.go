@@ -9,7 +9,8 @@ func NewRouter() *gin.Engine {
 
 	group := r.Group("/api/v1")
 	{
-		InitTaskRouter(group) // 任务管理
+		InitTaskRouter(group)    // 任务管理
+		InitTaskLogRouter(group) // 任务日志管理
 	}
 
 	return r

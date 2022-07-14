@@ -41,35 +41,26 @@ func (tg TaskLog) Update(db *gorm.DB, values interface{}) error {
 	return nil
 }
 
-func (tg TaskLog) Count(db *gorm.DB) (int, error) {
+func (tg TaskLog) Count(db *gorm.DB, taskId uint32) (int, error) {
 	var count int
-	if tg.Name != "" {
-		db = db.Where("name = ?", tg.Name)
-	}
-	db = db.Where("status = ?", tg.Status)
-	if err := db.Model(&tg).Where("is_del = ?", NoDelete).Count(&count).Error; err != nil {
+	if err := db.Model(&tg).Where("task_id = ? and is_del = ?", taskId, NoDelete).Count(&count).Error; err != nil {
 		return 0, err
 	}
 
 	return count, nil
 }
 
-func (tg TaskLog) List(db *gorm.DB, pageOffset, pageSize int) ([]*Task, error) {
-	var tasks []*Task
+func (tg TaskLog) List(db *gorm.DB, taskId uint32, pageOffset, pageSize int) ([]*TaskLog, error) {
+	var taskLogs []*TaskLog
 	var err error
 	if pageOffset >= 0 && pageSize > 0 {
 		db = db.Offset(pageOffset).Limit(pageSize)
 	}
-	if tg.Name != "" {
-		db = db.Where("name = ?", tg.Name)
-	}
-	db = db.Where("status = ?", tg.Status)
-
-	if err = db.Where("is_del = ?", NoDelete).Find(&tasks).Error; err != nil {
+	if err = db.Where("task_id = ? and is_del = ?", taskId, NoDelete).Find(&taskLogs).Error; err != nil {
 		return nil, err
 	}
 
-	return tasks, nil
+	return taskLogs, nil
 }
 
 func (tg TaskLog) Detail(db *gorm.DB, ID uint32) (Task, error) {
