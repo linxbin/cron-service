@@ -3,7 +3,6 @@ package cron
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"os"
 	"os/exec"
 	"runtime"
@@ -107,38 +106,66 @@ func createJob(task model.Task) cron.FuncJob {
 		taskCount.Add()
 		defer taskCount.Done()
 
-		taskLogId := beforeExecJob()
-		if taskLogId <= 0 {
+		taskLogId, err := beforeExecJob(task)
+		if err != nil || taskLogId <= 0 {
 			return
 		}
-
 		global.Logger.Infof("开始执行任务#%s#命令-%s", task.Name, task.Command)
-		_ = execJob(task, taskLogId)
+		result := execJob(task)
 		global.Logger.Infof("任务完成#%s#命令-%s", task.Name, task.Command)
-		afterExecJob()
+		if err = afterExecJob(taskLogId, result); err != nil {
+			return
+		}
 	}
 
 	return taskFunc
 }
 
-func beforeExecJob() (taskLogId int64) {
-	//taskLogId, err := createTaskLog(taskModel, models.Running)
-	//if err != nil {
-	//	logger.Error("任务开始执行#写入任务日志失败-", err)
-	//	return
-	//}
-	//logger.Debugf("任务命令-%s", taskModel.Command)
-	//
-	//return taskLogId
-	return rand.Int63()
+func beforeExecJob(task model.Task) (taskLogId uint32, err error) {
+	taskLogId, err = createTaskLog(task)
+	if err != nil {
+		return 0, err
+	}
+
+	return taskLogId, nil
+}
+
+func createTaskLog(task model.Task) (id uint32, err error) {
+	taskLogForm := dao.TaskLogForm{
+		TaskId:     task.ID,
+		Name:       task.Name,
+		Spec:       task.Spec,
+		Command:    task.Command,
+		Timeout:    task.Timeout,
+		RetryTimes: task.RetryTimes,
+		StartTime:  time.Now(),
+		EndTime:    time.Now(),
+		Status:     model.TaskLogStatusPending,
+	}
+	d := dao.New(global.DBEngine)
+	return d.CreateTaskLog(taskLogForm)
+}
+
+func updateTaskLog(taskLogId uint32, result TaskResult) error {
+	d := dao.New(global.DBEngine)
+	var status int
+	if result.Err != nil {
+		status = model.TaskLogStatusFailure
+	} else {
+		status = model.TaskLogStatusComplete
+	}
+	values := model.CommonMap{
+		"status":      status,
+		"end_time":    time.Now(),
+		"retry_times": result.RetryTimes,
+		"result":      result.Result,
+	}
+	return d.UpdateTaskLog(taskLogId, values)
 }
 
 // 任务执行后置操作
-func afterExecJob() {
-	//_, err := updateTaskLog(taskLogId, taskResult)
-	//if err != nil {
-	//	logger.Error("任务结束#更新任务日志失败-", err)
-	//}
+func afterExecJob(taskLogId uint32, result TaskResult) error {
+	return updateTaskLog(taskLogId, result)
 }
 
 type TaskResult struct {
@@ -148,7 +175,7 @@ type TaskResult struct {
 }
 
 // 执行具体任务
-func execJob(task model.Task, taskUniqueId int64) TaskResult {
+func execJob(task model.Task) TaskResult {
 	defer func() {
 		if err := recover(); err != nil {
 			global.Logger.Errorf("panic#service/task.go:execJob#%s", err)
@@ -168,7 +195,7 @@ func execJob(task model.Task, taskUniqueId int64) TaskResult {
 		cmd = exec.Command(
 			"cmd",
 			"/c",
-			"echo hello world")
+			task.Command)
 		if cmdResult, err = cmd.Output(); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
