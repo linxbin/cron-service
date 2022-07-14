@@ -72,7 +72,7 @@ func (c Cron) Initialize() error {
 			break
 		}
 		for _, item := range taskList {
-			if err = addTask(*item); err != nil {
+			if err = addTask(item); err != nil {
 				return err
 			}
 			taskNum++
@@ -82,7 +82,7 @@ func (c Cron) Initialize() error {
 	return nil
 }
 
-func addTask(task model.Task) error {
+func addTask(task *model.Task) error {
 	taskFunc := createJob(task)
 	if taskFunc == nil {
 		return errors.New("创建任务处理Job失败")
@@ -101,7 +101,7 @@ func addTask(task model.Task) error {
 	return nil
 }
 
-func createJob(task model.Task) cron.FuncJob {
+func createJob(task *model.Task) cron.FuncJob {
 	taskFunc := func() {
 		taskCount.Add()
 		defer taskCount.Done()
@@ -121,7 +121,7 @@ func createJob(task model.Task) cron.FuncJob {
 	return taskFunc
 }
 
-func beforeExecJob(task model.Task) (taskLogId uint32, err error) {
+func beforeExecJob(task *model.Task) (taskLogId uint32, err error) {
 	taskLogId, err = createTaskLog(task)
 	if err != nil {
 		return 0, err
@@ -130,7 +130,7 @@ func beforeExecJob(task model.Task) (taskLogId uint32, err error) {
 	return taskLogId, nil
 }
 
-func createTaskLog(task model.Task) (id uint32, err error) {
+func createTaskLog(task *model.Task) (id uint32, err error) {
 	taskLogForm := dao.TaskLogForm{
 		TaskId:     task.ID,
 		Name:       task.Name,
@@ -175,7 +175,7 @@ type TaskResult struct {
 }
 
 // 执行具体任务
-func execJob(task model.Task) TaskResult {
+func execJob(task *model.Task) TaskResult {
 	defer func() {
 		if err := recover(); err != nil {
 			global.Logger.Errorf("panic#service/task.go:execJob#%s", err)
