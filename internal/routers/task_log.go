@@ -11,7 +11,7 @@ func InitTaskLogRouter(Router *gin.RouterGroup) {
 	taskLog := v1.NewTaskLog()
 	router := Router.Group("task-logs")
 	{
-		router.GET("/:task_id", taskLog.List) // 任务列表
-		//router.GET("/:id", taskLog.Detail)    // 任务详情
+		router.GET("/list/:task_id", taskLog.List) // 任务列表
+		router.GET("/detail/:id", taskLog.Detail)  // 任务详情
 	}
 }

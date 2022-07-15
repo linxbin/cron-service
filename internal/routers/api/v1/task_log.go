@@ -27,7 +27,7 @@ func (tl TaskLog) List(c *gin.Context) {
 
 	svc := service.New(c.Request.Context())
 	pager := app.Pager{Page: app.GetPage(c), PageSize: app.GetPageSize(c)}
-	totalRows, err := svc.CountTaskLog(&service.CountTaskLogRequest{TaskId: params.TaskId})
+	totalRows, err := svc.CountTaskLog(params.TaskId)
 	if err != nil {
 		global.Logger.Errorf("svc.CountTag err: %v", err)
 		response.ToErrorResponse(errcode.ErrorCountTaskFail)
@@ -37,7 +37,7 @@ func (tl TaskLog) List(c *gin.Context) {
 	tags, err := svc.TaskLogList(&params, &pager)
 	if err != nil {
 		global.Logger.Errorf("svc.GetTagLogList err: %v", err)
-		response.ToErrorResponse(errcode.ErrorGetTaskListFail)
+		response.ToErrorResponse(errcode.ErrorTaskLogListFail)
 		return
 	}
 
@@ -46,5 +46,20 @@ func (tl TaskLog) List(c *gin.Context) {
 }
 
 func (tl TaskLog) Detail(c *gin.Context) {
-
+	params := service.TaskLogDetailRequest{Id: convert.StrTo(c.Param("id")).MustUInt32()}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &params)
+	if !valid {
+		global.Logger.Errorf("app.BindAndValid errs: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+	svc := service.New(c.Request.Context())
+	taskLog, err := svc.TaskLogDetail(params.Id)
+	if err != nil {
+		global.Logger.Errorf("svc.GetTaskLogDetail err: %v", err)
+		response.ToErrorResponse(errcode.ErrorTaskLogDetailFail)
+		return
+	}
+	response.ToResponse(taskLog)
 }

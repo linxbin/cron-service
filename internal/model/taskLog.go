@@ -63,12 +63,12 @@ func (tg TaskLog) List(db *gorm.DB, taskId uint32, pageOffset, pageSize int) ([]
 	return taskLogs, nil
 }
 
-func (tg TaskLog) Detail(db *gorm.DB, ID uint32) (Task, error) {
-	task := Task{}
+func (tg TaskLog) Detail(db *gorm.DB, ID uint32) (TaskLog, error) {
+	taskLog := TaskLog{}
 	var err error
 
-	if err = db.First(&task, "id = ? and is_del = ?", ID, NoDelete).Error; err != nil {
-		return task, err
+	if err = db.First(&taskLog, "id = ? and is_del = ?", ID, NoDelete).Error; err != nil {
+		return taskLog, err
 	}
-	return task, nil
+	return taskLog, nil
 }

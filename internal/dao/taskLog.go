@@ -64,3 +64,8 @@ func (d *Dao) TaskLogList(taskId uint32, page, pageSize int) ([]*model.TaskLog, 
 	pageOffset := app.GetPageOffset(page, pageSize)
 	return taskLog.List(d.engine, taskId, pageOffset, pageSize)
 }
+
+func (d *Dao) TaskLogDetail(id uint32) (model.TaskLog, error) {
+	var taskLog model.TaskLog
+	return taskLog.Detail(d.engine, id)
+}
