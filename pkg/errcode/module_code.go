@@ -9,4 +9,5 @@ var (
 	ErrorTaskNotFound      = NewError(20010006, "任务不存在")
 	ErrorTaskLogListFail   = NewError(20010011, "获取任务日志列表失败")
 	ErrorTaskLogDetailFail = NewError(20010012, "获取任务日志详情失败")
+	ErrorUserLoginFail     = NewError(20000000, "账号或者密码错误")
 )

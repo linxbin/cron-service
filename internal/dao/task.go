@@ -79,7 +79,7 @@ func (d *Dao) DeleteTask(id uint32) error {
 	return task.Delete(d.engine)
 }
 
-func (d *Dao) TaskDetail(id uint32) (model.Task, error) {
+func (d *Dao) TaskDetail(id uint32) (*model.Task, error) {
 	var task model.Task
 	return task.Detail(d.engine, id)
 }

@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/linxbin/corn-service/internal/middleware"
 	v1 "github.com/linxbin/corn-service/internal/routers/api/v1"
 )
 
@@ -10,6 +11,7 @@ func InitTaskRouter(Router *gin.RouterGroup) {
 
 	task := v1.NewTask()
 	router := Router.Group("tasks")
+	router.Use(middleware.JWT())
 	{
 		router.POST("", task.Create)       // 创建任务
 		router.PUT("/:id", task.Update)    // 更新任务

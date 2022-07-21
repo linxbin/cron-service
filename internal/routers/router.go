@@ -1,6 +1,8 @@
 package routers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func NewRouter() *gin.Engine {
 	r := gin.New()
@@ -11,6 +13,7 @@ func NewRouter() *gin.Engine {
 	{
 		InitTaskRouter(group)    // 任务管理
 		InitTaskLogRouter(group) // 任务日志管理
+		InitUserRouter(group)    // 用户管理
 	}
 
 	return r

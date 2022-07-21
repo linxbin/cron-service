@@ -20,26 +20,26 @@ const (
 	TaskStatusActive = 1
 )
 
-func (t Task) TableName() string {
+func (t *Task) TableName() string {
 	return "task"
 }
 
-func (t Task) Create(db *gorm.DB) error {
+func (t *Task) Create(db *gorm.DB) error {
 	return db.Create(&t).Error
 }
 
-func (t Task) Update(db *gorm.DB, values interface{}) error {
+func (t *Task) Update(db *gorm.DB, values interface{}) error {
 	if err := db.Model(t).Where("id = ? AND is_del = ?", t.ID, NoDelete).Updates(values).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (t Task) Delete(db *gorm.DB) error {
+func (t *Task) Delete(db *gorm.DB) error {
 	return db.Where("id = ? AND is_del = ?", t.Model.ID, NoDelete).Delete(&t).Error
 }
 
-func (t Task) Count(db *gorm.DB) (int, error) {
+func (t *Task) Count(db *gorm.DB) (int, error) {
 	var count int
 	if t.Name != "" {
 		db = db.Where("name = ?", t.Name)
@@ -52,7 +52,7 @@ func (t Task) Count(db *gorm.DB) (int, error) {
 	return count, nil
 }
 
-func (t Task) List(db *gorm.DB, pageOffset, pageSize int) ([]*Task, error) {
+func (t *Task) List(db *gorm.DB, pageOffset, pageSize int) ([]*Task, error) {
 	var tasks []*Task
 	var err error
 	if pageOffset >= 0 && pageSize > 0 {
@@ -70,17 +70,17 @@ func (t Task) List(db *gorm.DB, pageOffset, pageSize int) ([]*Task, error) {
 	return tasks, nil
 }
 
-func (t Task) Detail(db *gorm.DB, ID uint32) (Task, error) {
-	task := Task{}
+func (t *Task) Detail(db *gorm.DB, ID uint32) (*Task, error) {
+	task := &Task{}
 	var err error
 
 	if err = db.First(&task, "id = ? and is_del = ?", ID, NoDelete).Error; err != nil {
-		return task, err
+		return nil, err
 	}
 	return task, nil
 }
 
-func (t Task) ActiveList(db *gorm.DB, pageOffset, pageSize int) ([]*Task, error) {
+func (t *Task) ActiveList(db *gorm.DB, pageOffset, pageSize int) ([]*Task, error) {
 	var tasks []*Task
 	var err error
 	if pageOffset >= 0 && pageSize > 0 {

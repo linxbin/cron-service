@@ -92,6 +92,6 @@ func (svc *Service) DeleteTask(param *DeleteTaskRequest) error {
 	return svc.dao.DeleteTask(param.ID)
 }
 
-func (svc *Service) TaskDetail(id uint32) (task model.Task, err error) {
+func (svc *Service) TaskDetail(id uint32) (task *model.Task, err error) {
 	return svc.dao.TaskDetail(id)
 }
