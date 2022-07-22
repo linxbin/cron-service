@@ -14,6 +14,13 @@ type Level int8
 
 type Fields map[string]interface{}
 
+type Logger struct {
+	newLogger *log.Logger
+	ctx       context.Context
+	fields    Fields
+	callers   []string
+}
+
 const (
 	LevelDebug Level = iota
 	LevelInfo
@@ -39,13 +46,6 @@ func (l Level) String() string {
 		return "panic"
 	}
 	return ""
-}
-
-type Logger struct {
-	newLogger *log.Logger
-	ctx       context.Context
-	fields    Fields
-	callers   []string
 }
 
 func NewLogger(w io.Writer, prefix string, flag int) *Logger {
@@ -89,7 +89,7 @@ func (l *Logger) WithCaller(skip int) *Logger {
 func (l *Logger) WithCallersFrames() *Logger {
 	maxCallerDepth := 25
 	minCallerDepth := 1
-	var callers []string
+	callers := []string{}
 	pcs := make([]uintptr, maxCallerDepth)
 	depth := runtime.Callers(minCallerDepth, pcs)
 	frames := runtime.CallersFrames(pcs[:depth])
@@ -107,7 +107,7 @@ func (l *Logger) WithCallersFrames() *Logger {
 func (l *Logger) JSONFormat(level Level, message string) map[string]interface{} {
 	data := make(Fields, len(l.fields)+4)
 	data["level"] = level.String()
-	data["time"] = time.Now().Local().UTC().Format
+	data["time"] = time.Now().Local().UnixNano()
 	data["message"] = message
 	data["callers"] = l.callers
 	if len(l.fields) > 0 {

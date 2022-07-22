@@ -184,7 +184,7 @@ func execJob(task *model.Task) TaskResult {
 	// 默认只运行任务一次
 	var execTimes uint8 = 1
 	if task.RetryTimes > 0 {
-		execTimes += task.RetryTimes
+		execTimes = task.RetryTimes
 	}
 	var i uint8 = 0
 	var output string
@@ -200,9 +200,10 @@ func execJob(task *model.Task) TaskResult {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(string(cmdResult))
-		// 指定参数后过滤换行符
-		fmt.Println(strings.Trim(string(cmdResult), "\n"))
+		if err == nil {
+			output = strings.Trim(string(cmdResult), "\n")
+			return TaskResult{Result: output, Err: err, RetryTimes: i}
+		}
 		i++
 		if i < execTimes {
 			global.Logger.Infof("任务执行失败#任务id-%d#重试第%d次#输出-%s#错误-%s", task.ID, i, output, err.Error())

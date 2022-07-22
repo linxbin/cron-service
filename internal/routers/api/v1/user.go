@@ -26,14 +26,12 @@ func (u *User) Login(c *gin.Context) {
 
 	svc := service.New(c.Request.Context())
 
-	token, err := svc.Login(&param)
+	userInfo, err := svc.Login(&param)
 	if err != nil {
 		global.Logger.Errorf("svc.user login err: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserLoginFail)
 		return
 	}
 
-	response.ToResponse(gin.H{
-		"token": token,
-	})
+	response.ToResponse(userInfo)
 }

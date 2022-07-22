@@ -6,17 +6,17 @@ import (
 	"github.com/linxbin/corn-service/pkg/util"
 )
 
-func (d *Dao) MatchUser(username, password string) error {
+func (d *Dao) MatchUser(username, password string) (*model.User, error) {
 	user := &model.User{
 		Username: username,
 	}
 	if err := user.GetOneByUsername(d.engine); err != nil {
-		return err
+		return nil, err
 	}
 	if user.Password != d.encryptUserPassword(password, user.Salt) {
-		return errors.New("username or password not match")
+		return nil, errors.New("username or password not match")
 	}
-	return nil
+	return user, nil
 }
 
 // 密码加密
